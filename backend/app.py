@@ -107,5 +107,17 @@ def get_history(current_user):
         })
     return jsonify(output)
 
+@app.route('/history/<int:history_id>', methods=['DELETE'])
+@token_required
+def delete_history(current_user, history_id):
+    history = History.query.filter_by(id=history_id, user_id=current_user.id).first()
+    if not history:
+        return jsonify({'message': 'History not found'}), 404
+
+    db.session.delete(history)
+    db.session.commit()
+    return jsonify({'message': 'History deleted successfully'})
+
+
 if __name__ == '__main__':
     app.run(debug=True, port=5001)
