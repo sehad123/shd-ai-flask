@@ -14,6 +14,8 @@ app.config['SECRET_KEY'] = 'your_secret_key'
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
+
+
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
@@ -50,11 +52,18 @@ def home():
 @app.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
+    username = data['username']
+    email = data['email']
+
+    if User.query.filter_by(username=username).first() or User.query.filter_by(email=email).first():
+        return jsonify({'message': 'Username or email already exists'}), 409
+
     hashed_password = generate_password_hash(data['password'], method='pbkdf2:sha256')
-    new_user = User(username=data['username'], email=data['email'], password=hashed_password)
+    new_user = User(username=username, email=email, password=hashed_password)
     db.session.add(new_user)
     db.session.commit()
-    return jsonify({'message': 'registered successfully'})
+    return jsonify({'message': 'registered successfully'}), 201
+
 
 @app.route('/login', methods=['POST'])
 def login():
