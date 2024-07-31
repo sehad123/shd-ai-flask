@@ -104,7 +104,7 @@ def add_history(current_user):
 @app.route('/history', methods=['GET'])
 @token_required
 def get_history(current_user):
-    histories = History.query.filter_by(user_id=current_user.id).all()
+    histories = History.query.filter_by(user_id=current_user.id).order_by(History.created_at.desc()).all()
     output = []
     for history in histories:
         output.append({
@@ -115,6 +115,7 @@ def get_history(current_user):
             'updated_at': history.updated_at
         })
     return jsonify(output)
+
 
 @app.route('/history/<int:history_id>', methods=['DELETE'])
 @token_required
